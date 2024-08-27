@@ -6,7 +6,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
-	"github.com/zeozeozeo/ebitengine-microui-go/atlas"
+	"github.com/zeozeozeo/ebitengine-microui-go/icons"
 	"github.com/zeozeozeo/microui-go"
 )
 
@@ -104,18 +104,13 @@ func (mgr *Manager) renderText(cmd microui.TextCommand, screen *ebiten.Image) {
 }
 
 func (mgr *Manager) renderIcon(cmd microui.IconCommand, screen *ebiten.Image) {
-	rect := atlas.DefaultAtlasRects[cmd.Id]
-	x := cmd.Rect.X + (cmd.Rect.W-rect.W)/2
-	y := cmd.Rect.Y + (cmd.Rect.H-rect.H)/2
+	icon := icons.DefaultIcons[cmd.Id]
+
+	x := cmd.Rect.X + (cmd.Rect.W-icon.Bounds().Dx())/2
+	y := cmd.Rect.Y + (cmd.Rect.H-icon.Bounds().Dy())/2
 
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(
-		float64(x),
-		float64(y),
-	)
+	op.GeoM.Translate(float64(x), float64(y))
+	screen.DrawImage(icon, op)
 
-	icon := atlas.DefaultAtlas.SubImage(image.Rect(rect.X, rect.Y, rect.X+rect.W, rect.Y+rect.H))
-	op2 := &ebiten.DrawImageOptions{}
-	op2.GeoM.Translate(float64(x), float64(y))
-	screen.DrawImage(icon.(*ebiten.Image), op2)
 }
