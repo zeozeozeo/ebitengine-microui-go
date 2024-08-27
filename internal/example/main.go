@@ -1,23 +1,20 @@
 package main
 
 import (
+	"bytes"
 	_ "embed"
-	"fmt"
+	"log"
 
-	"github.com/golang/freetype/truetype"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/zeozeozeo/microui-go"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/zeozeozeo/microui-go-ebiten/renderer"
-	"golang.org/x/image/font"
+	"golang.org/x/image/font/gofont/goregular"
 )
-
-//go:embed proggy.ttf
-var proggyTtf []byte
-var proggySize = 16
-var proggyFace font.Face
 
 var (
 	width, height = 1280, 720
+	src           *text.GoTextFaceSource
+	face          text.Face
 )
 
 type Game struct {
@@ -25,20 +22,13 @@ type Game struct {
 }
 
 func (g *Game) Update() error {
-	g.mgr.Update()
+	g.mgr.Update() // updates microui input
 	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	ctx := g.mgr.Ctx
-	ctx.Begin()
-	if ctx.BeginWindow("Hello, world!", microui.NewRect(100, 100, 200, 400)) {
-		if ctx.Button("some button") {
-			fmt.Println("button pressed")
-		}
-		ctx.EndWindow()
-	}
-	ctx.End()
+	// ui
+	DrawUI(g.mgr.Ctx)
 
 	g.mgr.Draw(screen)
 }
@@ -49,22 +39,24 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
 func init() {
 	// load font
-	f, err := truetype.Parse(proggyTtf)
+	var err error
+
+	src, err = text.NewGoTextFaceSource(bytes.NewReader(goregular.TTF))
 	if err != nil {
-		panic(err)
+		log.Fatal("err: ", err)
 	}
-	proggyFace = truetype.NewFace(f, &truetype.Options{
-		DPI:     72,
-		Size:    float64(proggySize),
-		Hinting: font.HintingVertical,
-	})
+
+	face = &text.GoTextFace{
+		Source: src,
+		Size:   14,
+	}
 }
 
 func main() {
 	ebiten.SetTPS(ebiten.SyncWithFPS)
 	ebiten.SetWindowSize(width, height)
 	g := &Game{}
-	g.mgr = renderer.NewManager(proggyFace, proggySize)
+	g.mgr = renderer.NewManager(face, 14)
 
 	if err := ebiten.RunGame(g); err != nil {
 		panic(err)

@@ -14,13 +14,13 @@ func (mgr *Manager) Update() {
 
 	// mouse down
 	var buttonsDown int
-	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		buttonsDown |= microui.MU_MOUSE_LEFT
 	}
-	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonMiddle) {
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonMiddle) {
 		buttonsDown |= microui.MU_MOUSE_MIDDLE
 	}
-	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonRight) {
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight) {
 		buttonsDown |= microui.MU_MOUSE_RIGHT
 	}
 	if buttonsDown != 0 {

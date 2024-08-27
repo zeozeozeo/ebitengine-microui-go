@@ -1,44 +1,44 @@
 package renderer
 
 import (
-	"fmt"
 	"image"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	"github.com/hajimehoshi/ebiten/v2/text"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/zeozeozeo/microui-go"
 	"github.com/zeozeozeo/microui-go-ebiten/atlas"
-	"golang.org/x/image/font"
 )
 
 type Manager struct {
 	Ctx        *microui.Context // microui context
-	Face       font.Face        // font face
+	Face       text.Face        // font face
 	FaceHeight int
+	ClipMask   bool // whether to use clip mask
 	clip       microui.Rect
 	mask       *ebiten.Image
 }
 
-func NewManagerWithContext(ctx *microui.Context, face font.Face, faceHeight int) *Manager {
+func NewManagerWithContext(ctx *microui.Context, face text.Face, faceHeight int) *Manager {
 	mgr := &Manager{
 		Ctx:        ctx,
 		Face:       face,
 		FaceHeight: faceHeight,
+		ClipMask:   true,
 	}
 	ctx.TextWidth = mgr.textWidth
 	ctx.TextHeight = mgr.textHeight
 	return mgr
 }
 
-func NewManager(face font.Face, faceHeight int) *Manager {
+func NewManager(face text.Face, faceHeight int) *Manager {
 	ctx := microui.NewContext()
 	return NewManagerWithContext(ctx, face, faceHeight)
 }
 
 func (mgr *Manager) textWidth(fnt microui.Font, str string) int {
-	r := text.BoundString(mgr.Face, str)
-	return r.Dx()
+	w, _ := text.Measure(str, mgr.Face, 0.0)
+	return int(w)
 }
 
 func (mgr *Manager) textHeight(fnt microui.Font) int {
@@ -55,9 +55,11 @@ func (mgr *Manager) Draw(screen *ebiten.Image) {
 func (mgr *Manager) renderCommand(cmd *microui.Command, screen *ebiten.Image) {
 	switch cmd.Type {
 	case microui.MU_COMMAND_CLIP:
+		if cmd.Clip.Rect == microui.UnclippedRect || !mgr.ClipMask {
+			return
+		}
 		mgr.clip = cmd.Clip.Rect
 		mgr.mask = ebiten.NewImage(mgr.clip.W, mgr.clip.H)
-		fmt.Println("got clip command:", mgr.clip.W, mgr.clip.H)
 	case microui.MU_COMMAND_RECT:
 		mgr.renderRect(cmd.Rect, screen)
 	case microui.MU_COMMAND_TEXT:
@@ -76,12 +78,13 @@ func (mgr *Manager) renderRect(cmd microui.RectCommand, screen *ebiten.Image) {
 			float64(cmd.Rect.X-mgr.clip.X),
 			float64(cmd.Rect.Y-mgr.clip.Y),
 		)
-		ebitenutil.DrawRect(
+		vector.DrawFilledRect(
 			mgr.mask,
 			0, 0,
-			float64(cmd.Rect.W),
-			float64(cmd.Rect.H),
+			float32(cmd.Rect.W),
+			float32(cmd.Rect.H),
 			cmd.Color.ToRGBA(),
+			false,
 		)
 
 		// draw mask to screen
@@ -92,52 +95,41 @@ func (mgr *Manager) renderRect(cmd microui.RectCommand, screen *ebiten.Image) {
 			op2,
 		)
 	} else {
-		ebitenutil.DrawRect(
+		vector.DrawFilledRect(
 			screen,
-			float64(cmd.Rect.X),
-			float64(cmd.Rect.Y),
-			float64(cmd.Rect.W),
-			float64(cmd.Rect.H),
+			float32(cmd.Rect.X),
+			float32(cmd.Rect.Y),
+			float32(cmd.Rect.W),
+			float32(cmd.Rect.H),
 			cmd.Color.ToRGBA(),
+			false,
 		)
 	}
 }
 
 func (mgr *Manager) renderText(cmd microui.TextCommand, screen *ebiten.Image) {
 	x := cmd.Pos.X
-	fh := float64(mgr.FaceHeight)
-	y := cmd.Pos.Y + int(fh/1.5)
+	y := cmd.Pos.Y
 
 	if mgr.mask != nil {
 		// draw to mask
 		mgr.mask.Clear()
-		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Translate(
-			float64(x-mgr.clip.X),
-			float64(y-mgr.clip.Y),
-		)
-		op.ColorM.ScaleWithColor(cmd.Color.ToRGBA())
-		text.DrawWithOptions(
-			mgr.mask,
-			cmd.Str,
-			mgr.Face,
-			op,
-		)
+		op := &text.DrawOptions{}
+		op.GeoM.Translate(float64(x-mgr.clip.X), float64(y-mgr.clip.Y))
+		op.ColorScale.ScaleWithColor(cmd.Color.ToRGBA())
+
+		text.Draw(mgr.mask, cmd.Str, mgr.Face, op)
 
 		// draw mask to screen
 		op2 := &ebiten.DrawImageOptions{}
 		op2.GeoM.Translate(float64(mgr.clip.X), float64(mgr.clip.Y))
 		screen.DrawImage(mgr.mask, op2)
 	} else {
-		op := &ebiten.DrawImageOptions{}
+		op := &text.DrawOptions{}
 		op.GeoM.Translate(float64(x), float64(y))
-		op.ColorM.ScaleWithColor(cmd.Color.ToRGBA())
-		text.DrawWithOptions(
-			screen,
-			cmd.Str,
-			mgr.Face,
-			op,
-		)
+		op.ColorScale.ScaleWithColor(cmd.Color.ToRGBA())
+
+		text.Draw(screen, cmd.Str, mgr.Face, op)
 	}
 }
 
@@ -176,5 +168,4 @@ func (mgr *Manager) renderIcon(cmd microui.IconCommand, screen *ebiten.Image) {
 		op2.GeoM.Translate(float64(x), float64(y))
 		screen.DrawImage(icon.(*ebiten.Image), op2)
 	}
-
 }
