@@ -7,7 +7,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
-	"github.com/zeozeozeo/microui-go-ebiten/renderer"
+	"github.com/zeozeozeo/ebitengine-microui-go/renderer"
 	"golang.org/x/image/font/gofont/goregular"
 )
 

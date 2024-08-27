@@ -6,8 +6,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
+	"github.com/zeozeozeo/ebitengine-microui-go/atlas"
 	"github.com/zeozeozeo/microui-go"
-	"github.com/zeozeozeo/microui-go-ebiten/atlas"
 )
 
 type Manager struct {

@@ -1,4 +1,4 @@
-module github.com/zeozeozeo/microui-go-ebiten
+module github.com/zeozeozeo/ebitengine-microui-go
 
 go 1.19
 
