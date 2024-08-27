@@ -1,3 +1,4 @@
+// This is a port of the microui demo: https://github.com/rxi/microui/blob/master/demo/main.c
 package main
 
 import (
