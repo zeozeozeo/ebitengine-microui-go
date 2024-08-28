@@ -8,6 +8,7 @@
 # TODO
   
 * Clipboard copy & paste
+* Fix scrollwheel on web: currently scrolls way too much
 
 # References
 
