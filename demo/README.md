@@ -5,7 +5,7 @@ Demo of running Ebitengine + ebitengine-microui-go on the web.
 # Building this demo
 
 1. Clone the repository
-2. Navigate into the demo directory: `cd internal/demo`
+2. Navigate into the demo directory: `cd examples/demo`
 3. Build the demo for WebAssembly:
 
     On Linux:
