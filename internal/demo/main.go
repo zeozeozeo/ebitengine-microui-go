@@ -3,18 +3,19 @@ package main
 import (
 	"bytes"
 	_ "embed"
+	"fmt"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/zeozeozeo/ebitengine-microui-go/renderer"
 	"golang.org/x/image/font/gofont/goregular"
 )
 
 var (
-	width, height = 1280, 720
-	src           *text.GoTextFaceSource
-	face          text.Face
+	src  *text.GoTextFaceSource
+	face text.Face
 )
 
 type Game struct {
@@ -29,12 +30,24 @@ func (g *Game) Update() error {
 func (g *Game) Draw(screen *ebiten.Image) {
 	// ui
 	DrawUI(g.mgr.Ctx)
-
 	g.mgr.Draw(screen)
+
+	// tps/fps counter
+	ebitenutil.DebugPrintAt(
+		screen,
+		fmt.Sprintf(
+			"tps: %.2f\nfps: %.2f",
+			ebiten.ActualTPS(),
+			ebiten.ActualFPS(),
+		),
+		5,
+		5,
+	)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
-	return width, height
+	sf := ebiten.Monitor().DeviceScaleFactor()
+	return int(float64(outsideWidth) * sf), int(float64(outsideHeight) * sf)
 }
 
 func init() {
@@ -53,8 +66,10 @@ func init() {
 }
 
 func main() {
+	ebiten.SetWindowSize(1280, 720)
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetTPS(ebiten.SyncWithFPS)
-	ebiten.SetWindowSize(width, height)
+
 	g := &Game{}
 	g.mgr = renderer.NewManager(face, 14)
 

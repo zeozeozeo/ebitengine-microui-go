@@ -2,13 +2,12 @@
 
 [Ebitengine](https://ebitengine.org/) rendering backend for the [pure Go microui port](https://github.com/zeozeozeo/microui-go).
 
-![microui demo running in Ebitengine](/screenshots/demo.png)
-[Demo code for above image](https://github.com/zeozeozeo/ebitengine-microui-go/tree/main/internal/demo)
+[![microui demo running in Ebitengine](/screenshots/demo.png)](https://zeozeozeo.github.io/ebitengine-microui-go/demo)
+[🚀 **Run web demo**](https://zeozeozeo.github.io/ebitengine-microui-go/demo) **|** [Code](https://github.com/zeozeozeo/ebitengine-microui-go/tree/main/internal/demo)
 
 # TODO
   
 * Clipboard copy & paste
-* WASM example
 
 # References
 
