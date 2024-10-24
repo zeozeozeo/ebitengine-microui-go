@@ -2,7 +2,7 @@ module github.com/zeozeozeo/ebitengine-microui-go
 
 go 1.19
 
-require github.com/hajimehoshi/ebiten/v2 v2.8.1
+require github.com/hajimehoshi/ebiten/v2 v2.8.2
 
 require (
 	github.com/go-text/typesetting v0.2.0 // indirect
